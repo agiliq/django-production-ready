@@ -1,4 +1,3 @@
 Usage: python manage.py is_it_ready
 
-This is a simple app with no models and one management command which will check if your Django project project
-passes the minimal checks to be deployed.
+This is a simple app with no models and one management command which will check if your Django project passes the minimal checks to be deployed.
