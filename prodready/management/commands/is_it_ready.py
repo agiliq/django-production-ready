@@ -2,8 +2,8 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
 class Command(BaseCommand):
-    args = '<poll_id poll_id ...>'
-    help = 'Closes the specified poll for voting'
+    args = ''
+    help = 'Tells you if your app is producion ready by checking for simple, but easy to miss things'
 
     def handle(self, *args, **options):
         tests = Tests()
@@ -53,9 +53,28 @@ class Tests(object):
         "Set a valid email as DEFAULT_FROM_EMAIL"
         settings.DEFAULT_FROM_EMAIL == "webmatser@localhost"
         
+    def has_404_template(self):
+        "Create a custom 404.html template"
+        from django.template.loader import get_template
+        from django.template import TemplateDoesNotExist
+        try:
+            get_template("404.html")
+        except TemplateDoesNotExist:
+            return False
+        
+    def has_500_template(self):
+        "Create a custom 500.html template"
+        from django.template.loader import get_template
+        from django.template import TemplateDoesNotExist
+        try:
+            get_template("500.html")
+        except TemplateDoesNotExist:
+            return False
+
     
     @property    
     def all_tests(self):
         return [self.debug, self.template_debug, self.admins, self.managers,
-                self.debug_propogate, server_email, default_from_email]
+                self.debug_propogate, self.server_email, self.default_from_email, 
+                self.has_500_template, self.has_404_template]
         
