@@ -6,9 +6,12 @@ DEBUG_PROPAGATE_EXCEPTIONS = False
 
 
 ADMINS = (
+    "shabda@agiliq.com",
 )
 
-MANAGERS = ADMINS
+MANAGERS = (
+    "hello@agiliq.com"
+)
 
 DATABASES = {
     'default': {
