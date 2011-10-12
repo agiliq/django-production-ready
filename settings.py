@@ -13,6 +13,10 @@ MANAGERS = (
     "hello@agiliq.com"
 )
 
+SERVER_EMAIL = "hello@agiliq.com"
+DEFAULT_FROM_EMAIL = "hello@agiliq.com"
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
