@@ -10,7 +10,7 @@ class Command(BaseCommand):
         failed_tests = 0
         passed_tests = 0
         for test in tests.all_tests:
-            if test:
+            if test():
                 failed_tests += 1
                 print test.__doc__
         passed_tests = len(tests.all_tests) - failed_tests
@@ -22,6 +22,10 @@ class Command(BaseCommand):
         
         
 class Tests(object):
+    """This class keeps the tests failing which should mean that your app is not prod ready, yet.
+    If a check fails, it return True. If a check passes it returns False. Doc strings are use dto tell 
+    the user what to do.
+    """
     def __init__(self):
         pass
         
@@ -35,11 +39,11 @@ class Tests(object):
     
     def admins(self):
         "Enter your email address in ADMINS to receive error emails"
-        return settings.ADMINS
+        return not settings.ADMINS
         
     def managers(self):
         "Enter your email address in MANAGERS to receive error emails"
-        return settings.ADMINS
+        return not settings.MANAGERS
             
     def debug_propogate(self):
         "Set DEBUG_PROPAGATE_EXCEPTIONS to False"
@@ -51,11 +55,11 @@ class Tests(object):
         
     def default_from_email(self):
         "Set a valid email as DEFAULT_FROM_EMAIL"
-        return settings.DEFAULT_FROM_EMAIL == "webmatser@localhost"
+        return settings.DEFAULT_FROM_EMAIL == "webmaster@localhost"
         
     def smtp(self):
         "Setup SMTP details, so you can receive emails, for example when an error occurs."
-        return setting.EMAIL_HOST_USER
+        return not settings.EMAIL_HOST_USER
         
     def has_404_template(self):
         "Create a custom 404.html template"
@@ -64,8 +68,8 @@ class Tests(object):
         try:
             get_template("404.html")
         except TemplateDoesNotExist:
-            return False
-        return True
+            return True
+        return False
         
     def has_500_template(self):
         "Create a custom 500.html template"
@@ -74,8 +78,8 @@ class Tests(object):
         try:
             get_template("500.html")
         except TemplateDoesNotExist:
-            return False
-        return True
+            return True
+        return False
     
     @property    
     def all_tests(self):
