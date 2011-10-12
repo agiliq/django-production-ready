@@ -38,8 +38,8 @@ class Tests(object):
         return settings.ADMINS
         
     def managers(self):
-            "Enter your email address in MANAGERS to receive error emails"
-            return settings.ADMINS
+        "Enter your email address in MANAGERS to receive error emails"
+        return settings.ADMINS
             
     def debug_propogate(self):
         "Set DEBUG_PROPAGATE_EXCEPTIONS to False"
@@ -47,11 +47,15 @@ class Tests(object):
         
     def server_email(self):
         "Set a valid email as SERVER_EMAIL"
-        settings.SERVER_EMAIL == "root@localhost"
+        return settings.SERVER_EMAIL == "root@localhost"
         
     def default_from_email(self):
         "Set a valid email as DEFAULT_FROM_EMAIL"
-        settings.DEFAULT_FROM_EMAIL == "webmatser@localhost"
+        return settings.DEFAULT_FROM_EMAIL == "webmatser@localhost"
+        
+    def smtp(self):
+        "Setup SMTP details, so you can receive emails, for example when an error occurs."
+        return setting.EMAIL_HOST_USER
         
     def has_404_template(self):
         "Create a custom 404.html template"
@@ -61,6 +65,7 @@ class Tests(object):
             get_template("404.html")
         except TemplateDoesNotExist:
             return False
+        return True
         
     def has_500_template(self):
         "Create a custom 500.html template"
@@ -70,11 +75,12 @@ class Tests(object):
             get_template("500.html")
         except TemplateDoesNotExist:
             return False
-
+        return True
     
     @property    
     def all_tests(self):
         return [self.debug, self.template_debug, self.admins, self.managers,
                 self.debug_propogate, self.server_email, self.default_from_email, 
+                self.smtp,
                 self.has_500_template, self.has_404_template]
         
