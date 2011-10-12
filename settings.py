@@ -1,8 +1,8 @@
 # Django settings for ready project.
 
-DEBUG = True
-TEMPLATE_DEBUG = True
-DEBUG_PROPAGATE_EXCEPTIONS = True
+DEBUG = False
+TEMPLATE_DEBUG = False
+DEBUG_PROPAGATE_EXCEPTIONS = False
 
 
 ADMINS = (
