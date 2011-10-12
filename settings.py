@@ -15,6 +15,7 @@ MANAGERS = (
 
 SERVER_EMAIL = "hello@agiliq.com"
 DEFAULT_FROM_EMAIL = "hello@agiliq.com"
+EMAIL_HOST_USER = "hello@agiliq.com"
 
 
 DATABASES = {
