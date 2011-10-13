@@ -6,6 +6,7 @@ class Command(BaseCommand):
     help = 'Tells you if your app is producion ready by checking for simple, but easy to miss things'
 
     def handle(self, *args, **options):
+        print "Running the *minimal* set of checks needed before you deploy to production. Passing this doesn't mean you are ready, but failing almost certainly means you are not."
         tests = Tests()
         failed_tests = 0
         passed_tests = 0
