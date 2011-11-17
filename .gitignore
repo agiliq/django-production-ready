@@ -1,4 +1,6 @@
 *.pyc
-build/
+build/*
 *~
 *.swp
+dist/*
+django_production_ready.egg-info
