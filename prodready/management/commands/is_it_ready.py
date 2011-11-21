@@ -16,9 +16,11 @@ class Command(BaseCommand):
     def write_result(self):
         print 'Passed: %d, Failed: %d' % (len(self.passed_tests),
                                             len(self.failed_tests))
-        print 'Possible errors:'
-        for test in self.failed_tests:
-            print '*', test.__doc__
+        if self.failed_tests:
+            print 'Possible errors:'
+            for test in self.failed_tests:
+                print '*', test.__doc__
+
         print '-' * 20
         print 'Production ready: %s' % \
                 ('No' if self.failed_tests else 'Yes')
