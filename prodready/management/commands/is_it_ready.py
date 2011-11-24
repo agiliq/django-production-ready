@@ -1,104 +1,95 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.template.loader import get_template
+from django.template.loader import find_template
 from django.template import TemplateDoesNotExist
+
+import inspect
 
 
 class Command(BaseCommand):
-    help = ('Tells you if your app is producion ready by checking for '
-            'simple, but easy to miss things')
+    help = ('Validates the configuration settings against production '
+            'compliance and prints if any invalid settings are found')
 
-    def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
-        self.failed_tests = []
-        self.passed_tests = []
-
-    def write_result(self):
-        print 'Passed: %d, Failed: %d' % (len(self.passed_tests),
-                                            len(self.failed_tests))
-        if self.failed_tests:
+    def write_result(self, messages):
+        print (
+        '%(border)s\n'
+        'Production ready: %(status)s\n'
+        '%(border)s') % {'border': '-' * 20,
+                            'status': 'No' if messages else 'Yes'}
+        if messages:
             print 'Possible errors:'
-            for test in self.failed_tests:
-                print '*', test.__doc__
-
-        print '-' * 20
-        print 'Production ready: %s' % \
-                ('No' if self.failed_tests else 'Yes')
-        print '-' * 20
+            for message in messages:
+                print '    *', message
 
     def handle(self, *args, **options):
-        print ("Running the *minimal* set of checks needed before you "
-                "deploy to production. Passing this doesn't mean you are "
-                "ready, but failing almost certainly means you are not.")
-        tests = Tests()
-
-        for test in tests.all_tests:
-            if test():
-                self.failed_tests.append(test)
-            else:
-                self.passed_tests.append(test)
-
-        self.write_result()
+        messages = Validations().run()
+        self.write_result(messages)
 
 
-class Tests(object):
-    """This class keeps the tests failing which should mean that your app
-    is not prod ready, yet. If a check fails, it return True. If a check
-    passes it returns False. Doc strings are use dto tell the user what to do.
-    """
+class Validations(object):
+    '''Runs validations against default django settings
+    and returns helpful messages if any errors are found'''
 
-    def has_template(self, name):
+    def has_template(self, name, location=[]):
         try:
-            get_template(name)
+            find_template(name, location)
         except TemplateDoesNotExist:
-            return True
-        else:
             return False
+        else:
+            return True
 
-    def debug(self):
-        "Set DEBUG = False"
-        return settings.DEBUG
+    def check_debug_values(self):
+        messages = []
+        if not settings.DEBUG:
+            messages.append('Set DEBUG to False')
 
-    def template_debug(self):
-        "Set TEMPLATE_DEBUG = False"
-        return settings.TEMPLATE_DEBUG
+        if not settings.TEMPLATE_DEBUG:
+            messages.append('Set TEMPLATE_DEBUG to False')
 
-    def admins(self):
-        "Enter your email address in ADMINS to receive error emails"
-        return not settings.ADMINS
+        if settings.DEBUG_PROPAGATE_EXCEPTIONS:
+            messages.append('Set DEBUG_PROPAGATE_EXCEPTIONS to False')
 
-    def managers(self):
-        "Enter your email address in MANAGERS to receive error emails"
-        return not settings.MANAGERS
+        return messages
 
-    def debug_propogate(self):
-        "Set DEBUG_PROPAGATE_EXCEPTIONS to False"
-        return settings.DEBUG_PROPAGATE_EXCEPTIONS
+    def check_contacts(self):
+        messages = []
+        message_template = 'Enter valid email address in %s section'
+        if not settings.ADMINS:
+            messages.append(message_template % 'ADMINS')
 
-    def server_email(self):
-        "Set a valid email as SERVER_EMAIL"
-        return settings.SERVER_EMAIL == "root@localhost"
+        if not settings.MANAGERS:
+            messages.append(message_template % 'MANAGERS')
 
-    def default_from_email(self):
-        "Set a valid email as DEFAULT_FROM_EMAIL"
-        return settings.DEFAULT_FROM_EMAIL == "webmaster@localhost"
+        return messages
 
-    def smtp(self):
-        """Setup SMTP details, so you can receive emails, for example when
-        an error occurs."""
-        return not settings.EMAIL_HOST_USER
+    def check_email(self):
+        messages = []
 
-    def has_404_template(self):
-        "Create a custom 404.html template"
-        return self.has_template('404.html')
+        if not settings.EMAIL_HOST_USER:
+            messages.append('Setup E-mail host')
 
-    def has_500_template(self):
-        "Create a custom 500.html template"
-        return self.has_template('505.html')
+        if settings.SERVER_EMAIL == 'root@localhost':
+            messages.append('Set a valid email for SERVER_EMAIL')
 
-    @property
-    def all_tests(self):
-        return [self.debug, self.template_debug, self.admins, self.managers,
-                self.debug_propogate, self.server_email,
-                self.default_from_email, self.smtp,
-                self.has_500_template, self.has_404_template]
+        if settings.DEFAULT_FROM_EMAIL == "webmaster@localhost":
+            messages.append('Set a valid email for DEFAULT_FROM_EMAIL')
+
+        return messages
+
+    def check_default_templates(self):
+        default_templates = ['404.html', '500.html']
+        messages = []
+
+        for name in default_templates:
+            if not self.has_template(name, settings.TEMPLATE_DIRS):
+                messages.append('Template %s does not exist' % name)
+
+        return messages
+
+    def run(self):
+        messages = []
+        for (name, method) in inspect.getmembers(self):
+            if inspect.ismethod(method) and name.startswith('check_'):
+                messages += method()
+
+        return messages
