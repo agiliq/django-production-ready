@@ -1,0 +1,5 @@
+Thanks to all the contributors who helped improve the project.
+
+List of contributors arranged in alphabetical order:
+* Kailash K <http://github.com/kailashnath>
+* Shabda Raaj <shabda@agiliq.com>
