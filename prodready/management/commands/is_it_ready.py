@@ -88,8 +88,9 @@ class Validations(object):
 
     def run(self):
         messages = []
-        for (name, method) in inspect.getmembers(self):
-            if inspect.ismethod(method) and name.startswith('check_'):
+        for (name, method) in inspect.getmembers(self,
+                                                predicate=inspect.ismethod):
+            if name.startswith('check_'):
                 messages += method()
 
         return messages
