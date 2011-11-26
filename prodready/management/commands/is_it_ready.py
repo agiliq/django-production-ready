@@ -76,11 +76,10 @@ class Validations(object):
 
         return messages
 
-    def check_default_templates(self):
-        default_templates = ['404.html', '500.html']
+    def check_default_templates(self, templates=['404.html', '500.html']):
         messages = []
 
-        for name in default_templates:
+        for name in templates:
             if not self.has_template(name, settings.TEMPLATE_DIRS):
                 messages.append('Template %s does not exist' % name)
 
