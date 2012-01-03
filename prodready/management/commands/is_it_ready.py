@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 print '    *', message
 
     def handle(self, *args, **options):
-        messages = Validations().run()
+        messages = Validations().run(options)
         self.write_result(messages)
 
 
@@ -85,7 +85,69 @@ class Validations(object):
 
         return messages
 
-    def run(self):
+    def check_print_statement(self):
+        import ast
+        import os
+        linenos = []
+        linenos_list = []
+
+        class PrintStatementFinder(ast.NodeVisitor):
+            def visit_Print(self, node):
+                if node.dest is None:
+                    linenos_list.append(node.values[0].lineno)
+
+        for (path, dirs, files) in os.walk("."):
+            for file_name in files:
+                if file_name.endswith(".py"):
+                    with open(path + "/" + file_name, 'rU') as f:
+                        linenos_list = []
+                        PrintStatementFinder().visit(ast.parse("".join(f.readlines())))
+                        if linenos_list:
+                            linenos.append(path + "/" + file_name)
+                            linenos.append(linenos_list)
+        if linenos:
+            if self.verbosity >= '2':
+                return ["There are print statements  'filename' , [list of linenos of  print statements in the file ] ", linenos]
+            else:
+                return ["You have one or more print statements"]
+        else:
+            return []
+
+    def check_ipdb_import(self):
+        import ast
+        import os
+        linenos = []
+        linenos_list = []
+
+        class ImportIpdbFinder(ast.NodeVisitor):
+            def visit_Import(self, node):
+                for names in node.names:
+                    if names.name == "ipdb" or  names.name == "pdb":
+                        linenos_list.append(node.lineno)
+
+            def visit_ImportFrom(self, node):
+                if node.names[0].name == "set_trace":
+                    linenos_list.append(node.lineno)
+
+        for (path, dirs, files) in os.walk("."):
+            for file_name in files:
+                if file_name.endswith(".py"):
+                    with open(path + "/" + file_name, 'rU') as f:
+                        linenos_list = []
+                        ImportIpdbFinder().visit(ast.parse("".join(f.readlines())))
+                        if linenos_list:
+                            linenos.append(path + "/" + file_name)
+                            linenos.append(linenos_list)
+        if linenos:
+            if self.verbosity >= '2':
+                return ["There are ipdb imports   'filename' , [list of linenos of  ipdb import  statements in the file ] ", linenos]
+            else:
+                return ["You have one or more ipdb import  statements"]
+        else:
+            return []
+
+    def run(self, options=None):
+        self.verbosity = options['verbosity']
         messages = []
         for (name, method) in inspect.getmembers(self,
                                                 predicate=inspect.ismethod):
