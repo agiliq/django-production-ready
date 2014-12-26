@@ -24,6 +24,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         messages = Validations().run(options)
         self.write_result(messages)
+        if messages:
+            exit(1)
 
 
 class Validations(object):
