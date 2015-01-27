@@ -42,10 +42,10 @@ class Validations(object):
 
     def check_debug_values(self):
         messages = []
-        if not settings.DEBUG:
+        if settings.DEBUG:
             messages.append('Set DEBUG to False')
 
-        if not settings.TEMPLATE_DEBUG:
+        if settings.TEMPLATE_DEBUG:
             messages.append('Set TEMPLATE_DEBUG to False')
 
         if settings.DEBUG_PROPAGATE_EXCEPTIONS:
