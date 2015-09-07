@@ -1,16 +1,23 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
 
+from prodready.management.commands.is_it_ready import Validations
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
+
+class ValidationsTest(TestCase):
+
+    def run_validations(self, method_name):
+        validations = Validations()
+        messages = getattr(validations, method_name)()
+        return messages
+        
+    def test_debug(self):
         """
-        Tests that 1 + 1 always equals 2.
+        Tests that `messages` is populated when settings.DEBUG is True
         """
-        self.assertEqual(1 + 1, 2)
+        with self.settings(DEBUG=True):
+            messages = self.run_validations('check_debug_values')
+            self.assertIn('Set DEBUG to False', messages)
+
+        with self.settings(DEBUG=False):
+            messages = self.run_validations('check_debug_values')
+            self.assertNotIn('Set DEBUG to False', messages)
