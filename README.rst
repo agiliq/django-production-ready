@@ -33,6 +33,11 @@ Run the management command to run the tests:
 
     $ python manage.py is_it_ready
 
+Running tests
+-------------
+
+    $ python runtests.py
+
 
 .. _pip: http://www.pip-installer.org/en/latest/
 .. _github: https://github.com/agiliq/django-production-ready
