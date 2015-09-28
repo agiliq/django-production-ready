@@ -38,6 +38,5 @@ Running tests
 
     $ python runtests.py
 
-
 .. _pip: http://www.pip-installer.org/en/latest/
 .. _github: https://github.com/agiliq/django-production-ready
